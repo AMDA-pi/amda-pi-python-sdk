@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 META_VERSION = "1.0"
-VERSION = "0.0.3"
+VERSION = "0.0.01b"
 DESCRIPTION = "Python SDK for AMDAPi API"
 
 with open("README.md", "r", encoding="utf-8") as file:
@@ -15,8 +15,8 @@ requirements = [x.strip() for x in content if "git+" not in x]
 setup(
     name="amdapi",
     version=VERSION,
-    homepage="http://amdapi.com",
-    url="https://github.com/AMDA-pi/python-sdk",
+    homepage_url="http://amdapi.com",
+    url="https://github.com/AMDA-pi/amda-pi-python-sdk",
     author="Omer Eltayeb",
     author_email="Omer.Eltayeb@amdapi.com",
     description=DESCRIPTION,
