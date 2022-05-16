@@ -1,7 +1,7 @@
+"""This file contains package wide default configurations"""
+
 from typing import List
 
-"""This file contains package wide default configurations
-    """
 # AMDAPi Endpoints
 ENDPOINT_CLIENT_AUTH: str = "https://auth.api-amdapi.com/oauth2/token"
 ENDPOINT_GET_CALLS: str = "https://api-amdapi.com/v1/calls/"

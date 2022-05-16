@@ -1,5 +1,9 @@
+# Commonly Used Libraries
 python-dotenv
 requests
+
+# Required for Audio Metadata
+pydub
 
 # Testing
 pytest

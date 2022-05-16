@@ -1,38 +1,40 @@
 """ This file contains classes and functions that contribute to creating a client, to interface with the ADMAPi API"""
 
 from __future__ import annotations
-import os
+
 import functools
+import json
+import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from io import BufferedReader
-from typing import Tuple, Dict
-from dataclasses import dataclass
-import json
+from typing import Dict, Tuple
 
 import requests
-from .search_result import SearchResult
-from .call import Call
+from pydub import AudioSegment
 
-from ..utils.functions import gen_b64_key
-from ..exceptions.local_errors import CredentialsNotFoundError
 from ..configs import (
+    ANALYSIS_LANGUAGES,
+    ANALYSIS_ORIGINS,
     CLIENT_ID_ENV_NAME,
     CLIENT_SECRET_ENV_NAME,
-    ENDPOINT_GET_CALL_W_UUID,
     ENDPOINT_CLIENT_AUTH,
-    ANALYSIS_ORIGINS,
-    ANALYSIS_LANGUAGES,
-    ENDPOINT_GET_STORAGE,
+    ENDPOINT_GET_CALL_W_UUID,
     ENDPOINT_GET_CALLS,
+    ENDPOINT_GET_STORAGE,
     REAUTH_SAFETY,
 )
-from ..exceptions.auth_errors import AuthorizationError
 from ..exceptions.api_errors import (
-    TokenExpiredError,
     CallNotFoundError,
-    PageOutOfRangeError,
     InternalServerError,
+    PageOutOfRangeError,
+    TokenExpiredError,
 )
+from ..exceptions.auth_errors import AuthorizationError
+from ..exceptions.local_errors import CredentialsNotFoundError
+from ..utils.functions import gen_b64_key
+from .call import Call
+from .search_result import SearchResult
 
 
 @dataclass(frozen=True)
@@ -261,6 +263,7 @@ class Client:
         origin="",
         language="",
         summary: bool = False,
+        agent_channel: int = None,
     ) -> Call:
         """This function allows you to send an audio file (.wav) to AMDAPi for analysis.
 
@@ -274,6 +277,7 @@ class Client:
             origin (str): [Inbound/Outbound]. Defaults to "".
             language (str): [en/en-in/fr]. Defaults to "".
             summary (bool): Whether or not you would like a summary of the call to also be included in the analysis. Defaults to False.
+            agent_channel (int): Index of the channel that the agent is on (Required for stereo audio only).
 
         Raises:
             ValueError: Raised when invalid options are passed to 'origin' and 'language'.
@@ -303,6 +307,17 @@ class Client:
             "language": str(language),
             "summary": bool(summary),
         }
+
+        # Check if Audio is Stereo
+        if isinstance(agent_channel, int):
+            sound = AudioSegment.from_wav(audio)
+            audio = sound.raw_data
+            if agent_channel in range(sound.channels):
+                call_info["agent_channel"] = int(agent_channel)
+            else:
+                raise IndexError(
+                    "Agent Channel out of Range. Values: [0,1] \nIs the file stereo?"
+                )
 
         # Retrieve S3 URL and Call_UUID
         upload_location, call_info["call_uuid"] = self.__get_s3_url(call_info)
