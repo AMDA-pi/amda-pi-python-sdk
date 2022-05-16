@@ -1,38 +1,40 @@
 """ This file contains classes and functions that contribute to creating a client, to interface with the ADMAPi API"""
 
 from __future__ import annotations
-import os
+
 import functools
+import json
+import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from io import BufferedReader
-from typing import Tuple, Dict
-from dataclasses import dataclass
-import json
+from typing import Dict, Tuple
 
 import requests
-from .search_result import SearchResult
-from .call import Call
 
-from ..utils.functions import gen_b64_key
-from ..exceptions.local_errors import CredentialsNotFoundError
 from ..configs import (
+    ANALYSIS_LANGUAGES,
+    ANALYSIS_ORIGINS,
     CLIENT_ID_ENV_NAME,
     CLIENT_SECRET_ENV_NAME,
-    ENDPOINT_GET_CALL_W_UUID,
     ENDPOINT_CLIENT_AUTH,
-    ANALYSIS_ORIGINS,
-    ANALYSIS_LANGUAGES,
-    ENDPOINT_GET_STORAGE,
+    ENDPOINT_GET_CALL_W_UUID,
     ENDPOINT_GET_CALLS,
+    ENDPOINT_GET_STORAGE,
     REAUTH_SAFETY,
 )
-from ..exceptions.auth_errors import AuthorizationError
 from ..exceptions.api_errors import (
-    TokenExpiredError,
     CallNotFoundError,
-    PageOutOfRangeError,
     InternalServerError,
+    PageOutOfRangeError,
+    TokenExpiredError,
 )
+from ..exceptions.auth_errors import AuthorizationError
+from ..exceptions.local_errors import CredentialsNotFoundError
+from ..utils.audio import get_audio_objects, is_stereo
+from ..utils.functions import gen_b64_key
+from .call import Call
+from .search_result import SearchResult
 
 
 @dataclass(frozen=True)
@@ -252,7 +254,7 @@ class Client:
 
     def analyze_call(
         self,
-        audio: BufferedReader,
+        audio_buffer: BufferedReader,
         filename: str,
         call_id: str,
         client_id: int,
@@ -261,6 +263,7 @@ class Client:
         origin="",
         language="",
         summary: bool = False,
+        agent_channel: int = None,
     ) -> Call:
         """This function allows you to send an audio file (.wav) to AMDAPi for analysis.
 
@@ -274,6 +277,7 @@ class Client:
             origin (str): [Inbound/Outbound]. Defaults to "".
             language (str): [en/en-in/fr]. Defaults to "".
             summary (bool): Whether or not you would like a summary of the call to also be included in the analysis. Defaults to False.
+            agent_channel (int): Index of the channel that the agent is on (Required for stereo audio only).
 
         Raises:
             ValueError: Raised when invalid options are passed to 'origin' and 'language'.
@@ -304,12 +308,22 @@ class Client:
             "summary": bool(summary),
         }
 
+        audio_bytes, audio_object = get_audio_objects(audio_buffer)
+
+        if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
+            if is_stereo(audio_object):
+                call_info["agent_channel"] = int(agent_channel)
+            else:
+                print(f"{filename} is not a stereo file. agent_channel ignored!")
+        else:
+            raise IndexError("Agent Channel Out of Range. Allowed Values: [0,1]")
+
         # Retrieve S3 URL and Call_UUID
         upload_location, call_info["call_uuid"] = self.__get_s3_url(call_info)
 
         # Try to Upload
         try:
-            self.__upload_to_s3(audio, upload_location)
+            self.__upload_to_s3(audio_bytes, upload_location)
         except Exception as exc:
             self.delete_call(call_info["call_uuid"])
             raise Exception from exc
@@ -370,4 +384,4 @@ class Client:
             raise Exception(f"{response.status_code}: {response.reason}")
 
     def __repr__(self):
-        return f"< amdapi.Client | ClientID: {self.__client_id} | Last Token Refresh: {self.__token.last_refresh}>"
+        return f"< amdapi.Client | ClientID: {self.__client_id} | Last Token Refresh: {self.__token.last_refresh} >"

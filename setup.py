@@ -1,7 +1,7 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 META_VERSION = "1.0"
-VERSION = "0.0.01b"
+VERSION = "0.0.02b"
 DESCRIPTION = "Python SDK for AMDAPi API"
 
 with open("README.md", "r", encoding="utf-8") as file:
