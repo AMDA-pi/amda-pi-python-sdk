@@ -11,7 +11,6 @@ from io import BufferedReader
 from typing import Dict, Tuple
 
 import requests
-from pydub import AudioSegment
 
 from ..configs import (
     ANALYSIS_LANGUAGES,
@@ -32,6 +31,7 @@ from ..exceptions.api_errors import (
 )
 from ..exceptions.auth_errors import AuthorizationError
 from ..exceptions.local_errors import CredentialsNotFoundError
+from ..utils.audio import get_audio_objects, is_stereo
 from ..utils.functions import gen_b64_key
 from .call import Call
 from .search_result import SearchResult
@@ -254,7 +254,7 @@ class Client:
 
     def analyze_call(
         self,
-        audio: BufferedReader,
+        audio_buffer: BufferedReader,
         filename: str,
         call_id: str,
         client_id: int,
@@ -308,23 +308,22 @@ class Client:
             "summary": bool(summary),
         }
 
-        # Check if Audio is Stereo
-        if isinstance(agent_channel, int):
-            sound = AudioSegment.from_wav(audio)
-            audio = sound.raw_data
-            if agent_channel in range(sound.channels):
+        audio_bytes, audio_object = get_audio_objects(audio_buffer)
+
+        if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
+            if is_stereo(audio_object):
                 call_info["agent_channel"] = int(agent_channel)
             else:
-                raise IndexError(
-                    "Agent Channel out of Range. Values: [0,1] \nIs the file stereo?"
-                )
+                print(f"{filename} is not a stereo file. agent_channel ignored!")
+        else:
+            raise IndexError("Agent Channel Out of Range. Allowed Values: [0,1]")
 
         # Retrieve S3 URL and Call_UUID
         upload_location, call_info["call_uuid"] = self.__get_s3_url(call_info)
 
         # Try to Upload
         try:
-            self.__upload_to_s3(audio, upload_location)
+            self.__upload_to_s3(audio_bytes, upload_location)
         except Exception as exc:
             self.delete_call(call_info["call_uuid"])
             raise Exception from exc
@@ -385,4 +384,4 @@ class Client:
             raise Exception(f"{response.status_code}: {response.reason}")
 
     def __repr__(self):
-        return f"< amdapi.Client | ClientID: {self.__client_id} | Last Token Refresh: {self.__token.last_refresh}>"
+        return f"< amdapi.Client | ClientID: {self.__client_id} | Last Token Refresh: {self.__token.last_refresh} >"
