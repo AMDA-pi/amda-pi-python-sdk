@@ -7,3 +7,9 @@ pydub
 
 # Testing
 pytest
+
+# packaging
+pip
+setuptools
+twine
+wheel
