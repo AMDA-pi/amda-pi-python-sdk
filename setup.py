@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 META_VERSION = "1.0"
-VERSION = "0.0.02b"
+VERSION = "0.0.02b3"
 DESCRIPTION = "Python SDK for AMDAPi API"
 
 with open("README.md", "r", encoding="utf-8") as file:
@@ -23,6 +23,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     include_package_data=True,
+    install_requires=requirements,
     packages=find_packages(),
     keywords=["python", "amdapi", "AMDA", "PI", "amdapi-sdk"],
     classifiers=[
