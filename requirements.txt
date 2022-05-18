@@ -5,11 +5,11 @@ requests
 # Required for Audio Metadata
 pydub
 
-# Testing
-pytest
+# # Testing
+# pytest
 
-# packaging
-pip
-setuptools
-twine
-wheel
+# # packaging
+# pip
+# setuptools
+# twine
+# wheel
