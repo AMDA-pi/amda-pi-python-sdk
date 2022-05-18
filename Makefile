@@ -26,7 +26,7 @@ clean:
 	@rm -fr classipy.egg-info
 	@rm -fr *.egg-info
 
-test_install:
+install_dev:
 	@pip install -e .
 
 install:
@@ -52,8 +52,21 @@ PYPI_USERNAME=AfroYak
 build:
 	@python setup.py sdist bdist_wheel
 
+twine_check:
+	@twine check dist/*
+
+
+# Requires .pypirc at HOME Directory
+#[pypi]
+# username = __token__
+# password = pypi-AgEIcH...
+
+# [testpypi]
+# username = __token__
+# password = pypi-AgEIcH...
+
 pypi_test:
-	@twine upload -r testpypi dist/* -u $(PYPI_USERNAME)
+	@twine upload -r testpypi dist/* 
 
 pypi:
-	@twine upload dist/* -u $(PYPI_USERNAME)
+	@twine upload dist/* 

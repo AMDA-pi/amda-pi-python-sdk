@@ -6,8 +6,7 @@
 - `[Planned]` Batch Analysis Functionality.
 - `[Planned]` ETA indicator for Analysis of Audio on the Backend.
 - `[Planned]` Asynchronous Interface to speed up batch processing. 
-
-## 0.0.02b1 - 16/05/2022
+## 0.0.02b7 - 18/05/2022
 - `[Added]` Stereo Audio Processing. 🔉🔉
 - `[Added]` Changelog. 🎉
 - `[Fixed]` Repr Representation of Client Object. 🎉
