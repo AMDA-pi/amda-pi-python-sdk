@@ -97,7 +97,7 @@ To send a call to the AMDAPi Backend the following parameters are required.
 | `filename`    	| `str`      	| NA                       	| Filename of the audio file.                             	|
 | `origin`      	| `str`      	| `['Inbound','Outbound']` 	| Defines whether the call was Outbound or Inbound.       	|
 | `language`    	| `str`      	| `['en','en-in','fr']`    	| Primary language of the audio sent for analysis.        	|
-| `agent_channel`    	| `int`      	| `[0,1]`    	| ⚠ (optional) Used only for stereo audio to specify the channel for the agent audio. Will be ignored in the case of mono-channel audio. |
+| `agent_channel`    	| `int`      	| `[0,1]`    	| ⚠  Required for stereo audio to specify the channel for the agent audio. Will be ignored in the case of mono-channel audio. |
 <br/>
 
 #### **Example**
