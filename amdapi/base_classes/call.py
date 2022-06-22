@@ -1,8 +1,10 @@
 """ This file contains classes that are fundamental to creating a Call object."""
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Tuple
 from datetime import datetime
+from typing import Any, Dict, List, Tuple
+
 import requests
 
 
@@ -48,7 +50,7 @@ class Call:
     origin: str
     language: str
 
-    # Optional - When Analysed
+    # Optional - When Analyzed
     audio_duration: float = field(
         init=False,
     )

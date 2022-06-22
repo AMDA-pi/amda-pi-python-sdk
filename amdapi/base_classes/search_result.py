@@ -1,7 +1,9 @@
 """This file contains class for parsing SearchResults retrieved from AMDAPI"""
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Dict, List
+
 import requests
 
 from .call import Call
