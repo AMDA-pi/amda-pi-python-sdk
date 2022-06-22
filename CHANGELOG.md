@@ -6,6 +6,11 @@
 - `[Planned]` Batch Analysis Functionality.
 - `[Planned]` ETA indicator for Analysis of Audio on the Backend.
 - `[Planned]` Asynchronous Interface to speed up batch processing. 
+
+## 0.0.02b8 - 22/06/2022
+- `[Fixed]` Bug involving Binary header being stripped. 😡😡
+- `[Fixed]` Stereo Logic
+- `[Fixed]` Delete Return Msg (UUI Format)
 ## 0.0.02b7 - 18/05/2022
 - `[Added]` Stereo Audio Processing. 🔉🔉
 - `[Added]` Changelog. 🎉

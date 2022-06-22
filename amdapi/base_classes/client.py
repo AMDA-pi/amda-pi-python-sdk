@@ -250,7 +250,7 @@ class Client:
         elif response.status_code == 401:
             raise Exception(f"{response.status_code}: {response.reason}")
         else:
-            return response.json()["data"].title()
+            return response.json()["data"].capitalize()
 
     def analyze_call(
         self,
@@ -310,13 +310,16 @@ class Client:
 
         audio_bytes, audio_object = get_audio_objects(audio_buffer)
 
-        if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
-            if is_stereo(audio_object):
+        if is_stereo(audio_object):
+            if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
                 call_info["agent_channel"] = int(agent_channel)
             else:
-                print(f"{filename} is not a stereo file. agent_channel ignored!")
+                raise IndexError(
+                    "This is a Stereo File! Please Specify agent_channel in the params. Allowed Values: [0,1]"
+                )
+
         else:
-            raise IndexError("Agent Channel Out of Range. Allowed Values: [0,1]")
+            print(f"{filename} is not a stereo file. agent_channel ignored!")
 
         # Retrieve S3 URL and Call_UUID
         upload_location, call_info["call_uuid"] = self.__get_s3_url(call_info)
@@ -365,18 +368,20 @@ class Client:
         else:
             return response.json()["data"]["url"], response.json()["data"]["call_uuid"]
 
-    def __upload_to_s3(self, audio_file: BufferedReader, storage_url: str) -> None:
+    def __upload_to_s3(self, audio_bytes: bytes, storage_url: str) -> None:
         """Internal function for uploading audio file to backend.
 
         Args:
-            audio_file (BufferedReader): File for upload (must be .wav)
-            storage_url (str): Presigned URL for file upload
+            audio_bytes (bytes): Binary representation of file for upload.
+            storage_url (str): Presigned URL for file upload.
 
         Raises:
             Exception: Any exceptions that may be raised during upload.
         """
         headers_audio = {"Content-Type": "audio/wav", "x-amz-acl": "public-read"}
-        response = requests.put(storage_url, data=audio_file, headers=headers_audio)
+        response = requests.put(
+            url=storage_url, data=audio_bytes, headers=headers_audio
+        )
 
         if response.status_code == 200 and "etag" in response.headers:
             pass
