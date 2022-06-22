@@ -250,7 +250,7 @@ class Client:
         elif response.status_code == 401:
             raise Exception(f"{response.status_code}: {response.reason}")
         else:
-            return response.json()["data"].title()
+            return response.json()["data"].capitalize()
 
     def analyze_call(
         self,
