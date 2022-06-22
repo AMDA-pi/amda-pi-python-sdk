@@ -1,5 +1,6 @@
 """Helper Functions for dealing with Audio data."""
 
+import io
 from io import BufferedReader
 from typing import Any, Dict, Tuple
 
@@ -38,7 +39,7 @@ def get_metrics(audio: AudioSegment) -> Dict[str, Any]:
     return metrics
 
 
-def get_audio_objects(audio: BufferedReader) -> Tuple[bytes, AudioSegment]:
+def get_audio_objects(audio_buffer: BufferedReader) -> Tuple[bytes, AudioSegment]:
     """Reads the audio data into memory, and prepares an audio object for further logic.
 
     Args:
@@ -47,5 +48,7 @@ def get_audio_objects(audio: BufferedReader) -> Tuple[bytes, AudioSegment]:
     Returns:
         Tuple[bytes, AudioSegment]: (Byte Representation of Audio, AudioSegment Object for Logic)
     """
-    audio_object = AudioSegment.from_wav(audio)
-    return audio_object.raw_data, audio_object
+
+    audio_bytes = audio_buffer.read()
+    audio_object = AudioSegment.from_wav(io.BytesIO(audio_bytes))
+    return audio_bytes, audio_object
