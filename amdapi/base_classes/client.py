@@ -263,7 +263,7 @@ class Client:
         origin="",
         language="",
         summary: bool = False,
-        agent_channel: int = None,
+        agent_channel: int | None = None,
     ) -> Call:
         """This function allows you to send an audio file (.wav) to AMDAPi for analysis.
 
@@ -310,16 +310,16 @@ class Client:
 
         audio_bytes, audio_object = get_audio_objects(audio_buffer)
 
-        if is_stereo(audio_object):
-            if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
-                call_info["agent_channel"] = int(agent_channel)
+        if agent_channel is not None:  # File will be processed as Stereo
+            if is_stereo(audio_object):
+                if isinstance(agent_channel, int) and (agent_channel in [0, 1]):
+                    call_info["agent_channel"] = int(agent_channel)
+                else:
+                    raise ValueError(
+                        f"agent_channel current_value:{agent_channel}. Allowed Values: [0,1]"
+                    )
             else:
-                raise IndexError(
-                    "This is a Stereo File! Please Specify agent_channel in the params. Allowed Values: [0,1]"
-                )
-
-        else:
-            print(f"{filename} is not a stereo file. agent_channel ignored!")
+                print(f"{filename} is NOT a stereo file. agent_channel ignored!")
 
         # Retrieve S3 URL and Call_UUID
         upload_location, call_info["call_uuid"] = self.__get_s3_url(call_info)

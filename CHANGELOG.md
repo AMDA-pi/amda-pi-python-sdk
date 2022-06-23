@@ -7,6 +7,9 @@
 - `[Planned]` ETA indicator for Analysis of Audio on the Backend.
 - `[Planned]` Asynchronous Interface to speed up batch processing. 
 
+## 0.0.02b9 - 23/06/2022
+`[Improved]` Stereo Logic, allow users to process audio as Mono, even if it is Stereo.
+
 ## 0.0.02b8 - 22/06/2022
 - `[Fixed]` Bug involving Binary header being stripped. 😡😡
 - `[Fixed]` Stereo Logic
